@@ -14,12 +14,12 @@ const BookmarksService = {
     getById(knex, id) {
         return knex.from('bookmarks_table').select('*').where('id', id).first()
     },
-    deleteArticle(knex, id) {
+    deleteBookmark(knex, id) {
         return knex('bookmarks_table')
             .where({ id })
             .delete()
     },
-    updateArticle(knex, id, newBookmarkFields) {
+    updatebookmark(knex, id, newBookmarkFields) {
         return knex('bookmarks_table')
             .where({ id })
             .update(newBookmarkFields)
