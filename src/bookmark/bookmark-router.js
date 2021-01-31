@@ -12,6 +12,7 @@ const { bookmarks } = require('../store')
 const BookmarksService = require('../bookmarks-service')
 const jsonParser = express.json()
 const xss = require('xss')
+const path = require('path')
 
 
 
@@ -44,7 +45,7 @@ bookmarkRouter
     .then(bookmark => {
       res
         .status(201)
-        .location(`/bookmarks/${bookmark.id}`)
+        .location(path.posix.join(req.originalUrl, `/${article.id}`))
         .json(bookmark)
     })
   .catch(next)
@@ -87,6 +88,27 @@ bookmarkRouter
       res.status(204).end()
     })
     .catch(next)  
+  })
+  .patch(jsonParser, (req, res, next) => {
+    const { title, url, rating, desc } = req.body
+    const bookmarkToUpdate = { title, url, rating, desc }
+    const numberOfValues = Object.values(bookmarkToUpdate).filter(Boolean).length
+    if (numberOfValues === 0) {
+      return res.status(400).json({
+        error: {
+          message: `Request body must contain either 'title', 'url', 'rating', or 'desc'`
+        }
+      })
+    }
+    BookmarksService.updateBookmark(
+      req.app.get('db'),
+      req.params.id,
+      bookmarkToUpdate
+    )
+      .then(numRowsAffected => {
+        res.status(204).end()
+      })
+      .catch(next)
   })
 
 module.exports = bookmarkRouter
